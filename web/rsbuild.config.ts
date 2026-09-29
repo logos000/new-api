@@ -64,6 +64,9 @@ export default defineConfig(({ envMode }) => {
     },
     html: {
       template: './index.html',
+      // Override Rsbuild's default favicon injection (public/favicon.ico) so the
+      // tab icon resolves to the InfinMag mark under its cache-busting filename.
+      favicon: './public/infinmag-logo.png',
     },
     server: {
       host: '0.0.0.0',
