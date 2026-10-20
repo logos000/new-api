@@ -153,13 +153,26 @@ func OpenAIResponsesRequestToGeminiChat(c context.Context, req *dto.OpenAIRespon
 				}
 				continue
 			}
-			if len(parts) > 0 {
-				geminiRequest.Contents = append(geminiRequest.Contents, dto.GeminiChatContent{
-					Role:  role,
-					Parts: parts,
-				})
+			// Gemini requires strictly alternating user/model contents: merge
+			// message parts into the previous content of the same role instead of
+			// opening a new one. Codex-style histories contain consecutive
+			// assistant messages and assistant text between function_call and
+			// function_call_output, which would otherwise produce consecutive
+			// model contents that Gemini rejects.
+			for _, part := range parts {
+				appendGeminiContentPart(geminiRequest, role, part)
 			}
 		}
+	}
+
+	// Gemini rejects requests whose last content is a model turn. Clients that
+	// replay a history ending with an assistant message want a continuation, so
+	// append a minimal user turn for that case.
+	if len(geminiRequest.Contents) > 0 && geminiRequest.Contents[len(geminiRequest.Contents)-1].Role == "model" {
+		geminiRequest.Contents = append(geminiRequest.Contents, dto.GeminiChatContent{
+			Role:  "user",
+			Parts: []dto.GeminiPart{{Text: "(continue)"}},
+		})
 	}
 
 	if len(systemTexts) > 0 {

@@ -409,10 +409,15 @@ func TestConvertRequestResponsesToGeminiSkipsThoughtSignatureWhenDisabled(t *tes
 	require.NoError(t, err)
 	geminiReq, ok := result.Value.(*dto.GeminiChatRequest)
 	require.True(t, ok)
-	require.Len(t, geminiReq.Contents, 1)
+	// A history ending with a model turn gains a minimal continuation user
+	// turn because Gemini rejects requests whose last content is from the model.
+	require.Len(t, geminiReq.Contents, 2)
 	require.Len(t, geminiReq.Contents[0].Parts, 1)
 	require.NotNil(t, geminiReq.Contents[0].Parts[0].FunctionCall)
 	assert.Empty(t, geminiReq.Contents[0].Parts[0].ThoughtSignature)
+	assert.Equal(t, "user", geminiReq.Contents[1].Role)
+	require.Len(t, geminiReq.Contents[1].Parts, 1)
+	assert.Equal(t, "(continue)", geminiReq.Contents[1].Parts[0].Text)
 }
 
 func TestConvertRequestOpenAIChatToGeminiAddsThoughtSignatureForAdvancedCustom(t *testing.T) {
