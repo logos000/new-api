@@ -354,6 +354,22 @@ export async function resetCodexUsage(
 }
 
 // ============================================================================
+// Coding Plan Subscription Usage (GLM Coding Plan, OpenCode Go)
+// ============================================================================
+
+export type SubscriptionUsageResponse = CodexUsageResponse
+
+export async function getSubscriptionUsage(
+  channelId: number
+): Promise<SubscriptionUsageResponse> {
+  const res = await api.get(
+    `/api/channel/${channelId}/subscription/usage`,
+    channelActionConfig({ disableDuplicate: true })
+  )
+  return res.data
+}
+
+// ============================================================================
 // Multi-Key Management
 // ============================================================================
 

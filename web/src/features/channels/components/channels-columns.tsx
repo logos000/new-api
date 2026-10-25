@@ -55,7 +55,11 @@ import {
 import { formatTimestampToDate } from '@/lib/format'
 import { truncateText } from '@/lib/utils'
 
-import { getCodexUsage } from '../api'
+import {
+  getCodexUsage,
+  getSubscriptionUsage,
+  type SubscriptionUsageResponse,
+} from '../api'
 import { CHANNEL_STATUS_CONFIG, MODEL_FETCHABLE_TYPES } from '../constants'
 import {
   formatRelativeTime,
@@ -85,6 +89,7 @@ import {
   CodexUsageDialog,
   type CodexUsageDialogData,
 } from './dialogs/codex-usage-dialog'
+import { CodingPlanUsageDialog } from './dialogs/coding-plan-usage-dialog'
 import { NumericSpinnerInput } from './numeric-spinner-input'
 
 function parseIonetMeta(otherInfo: string | null | undefined): null | {
@@ -337,6 +342,9 @@ function BalanceCell({ channel }: { channel: Channel }) {
   const [codexUsageOpen, setCodexUsageOpen] = useState(false)
   const [codexUsageResponse, setCodexUsageResponse] =
     useState<CodexUsageDialogData | null>(null)
+  const [subscriptionUsageOpen, setSubscriptionUsageOpen] = useState(false)
+  const [subscriptionUsageResponse, setSubscriptionUsageResponse] =
+    useState<SubscriptionUsageResponse | null>(null)
   const currencyLabel = getCurrencyLabel()
   const tokenSuffix = currencyLabel === 'Tokens' ? ' Tokens' : ''
   const withSuffix = (value: string) =>
@@ -418,6 +426,39 @@ function BalanceCell({ channel }: { channel: Channel }) {
   // Regular channel row: show used and remaining with click to update
   const variant = getBalanceVariant(balance)
 
+  // Coding plan subscriptions have no prepaid balance; the remaining cell
+  // opens a usage dialog fetched from the provider instead.
+  const isZhipuCodingPlan =
+    channel.type === 26 &&
+    (channel.base_url === 'glm-coding-plan' ||
+      channel.base_url === 'glm-coding-plan-international')
+  const isOpencodeChannel =
+    channel.type === 1 &&
+    Boolean(channel.base_url?.toLowerCase().includes('opencode.ai'))
+  const showsSubscriptionUsage =
+    channel.type === 57 || isZhipuCodingPlan || isOpencodeChannel
+
+  const loadSubscriptionUsage = async () => {
+    if (isUpdating) {
+      return
+    }
+    setIsUpdating(true)
+    try {
+      const res = await getSubscriptionUsage(channel.id)
+      if (!res.success) {
+        throw new Error(res.message || t('Failed to fetch usage'))
+      }
+      setSubscriptionUsageResponse(res)
+      setSubscriptionUsageOpen(true)
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : t('Failed to fetch usage')
+      )
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
   const handleClickUpdate = async () => {
     if (isUpdating) {
       return
@@ -442,13 +483,18 @@ function BalanceCell({ channel }: { channel: Channel }) {
       return
     }
 
+    if (isZhipuCodingPlan || isOpencodeChannel) {
+      await loadSubscriptionUsage()
+      return
+    }
+
     await handleUpdateChannelBalance(channel.id, queryClient)
     setIsUpdating(false)
   }
   let remainingBadgeLabel = sensitiveVisible ? remainingDisplay : SENSITIVE_MASK
   if (sensitiveVisible && isUpdating) {
     remainingBadgeLabel = t('Updating...')
-  } else if (sensitiveVisible && channel.type === 57) {
+  } else if (sensitiveVisible && showsSubscriptionUsage) {
     remainingBadgeLabel = t('Account Info')
   }
   let remainingTooltipLabel = remainingLabel
@@ -456,9 +502,11 @@ function BalanceCell({ channel }: { channel: Channel }) {
     remainingTooltipLabel = maskedRemainingLabel
   } else if (channel.type === 57) {
     remainingTooltipLabel = t('Click to view Codex usage')
+  } else if (showsSubscriptionUsage) {
+    remainingTooltipLabel = t('Click to view subscription usage')
   }
   let remainingBadgeVariant: StatusBadgeProps['variant'] = variant
-  if (channel.type === 57) {
+  if (showsSubscriptionUsage) {
     remainingBadgeVariant = 'info'
   } else if (isUpdating) {
     remainingBadgeVariant = 'neutral'
@@ -500,7 +548,9 @@ function BalanceCell({ channel }: { channel: Channel }) {
           />
           <TooltipContent>
             <p>{remainingTooltipLabel}</p>
-            {channel.type !== 57 && <p>{t('Click to update balance')}</p>}
+            {!showsSubscriptionUsage && (
+              <p>{t('Click to update balance')}</p>
+            )}
           </TooltipContent>
         </Tooltip>
       </div>
@@ -536,6 +586,18 @@ function BalanceCell({ channel }: { channel: Channel }) {
         }}
         isRefreshing={isUpdating}
       />
+
+      {(isZhipuCodingPlan || isOpencodeChannel) && (
+        <CodingPlanUsageDialog
+          open={subscriptionUsageOpen}
+          onOpenChange={setSubscriptionUsageOpen}
+          channelName={channel.name}
+          channelId={channel.id}
+          onRefresh={loadSubscriptionUsage}
+          isRefreshing={isUpdating}
+          response={subscriptionUsageResponse}
+        />
+      )}
     </TooltipProvider>
   )
 }
