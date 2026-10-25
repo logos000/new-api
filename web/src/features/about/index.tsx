@@ -148,11 +148,14 @@ export function About() {
   if (isUrl) {
     return (
       <PublicLayout showMainContainer={false}>
+        {/* allow-same-origin keeps the framed doc (a first-party static page)
+            interactive: opaque-origin frames lose input routing in embedded
+            browsers, and the doc anchors/copy buttons need real clicks. */}
         <iframe
           src={rawContent}
           className='h-[calc(100vh-3.5rem)] w-full border-0'
           title={t('About')}
-          sandbox='allow-forms allow-popups allow-popups-to-escape-sandbox allow-scripts'
+          sandbox='allow-forms allow-popups allow-popups-to-escape-sandbox allow-scripts allow-same-origin'
         />
       </PublicLayout>
     )
