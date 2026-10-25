@@ -85,6 +85,11 @@ type UsageWindowView = {
   remaining?: string
 }
 
+type ResolvedUsage = {
+  windows: UsageWindowView[]
+  planLevel?: string
+}
+
 function clampPercent(value: unknown): number {
   const v = Number(value)
   return Number.isFinite(v) ? Math.max(0, Math.min(100, v)) : 0
@@ -128,50 +133,58 @@ const percentTextClassName: Record<string, string> = {
   info: 'text-info',
 }
 
-// resolveUsageWindows normalizes the two upstream payload shapes (Zhipu coding
-// plan quota limits / OpenCode Go usage windows) into a common view model.
-function resolveUsageWindows(
+// resolveUsage normalizes the upstream payload shapes into a common view
+// model. Zhipu wraps its data twice ({code, msg, data: {limits, level}}),
+// so limits may sit at either level; OpenCode Go returns {usage: {...}}.
+function resolveUsage(
   data: Record<string, unknown> | undefined,
   t: (key: string) => string
-): UsageWindowView[] {
+): ResolvedUsage {
   if (!data || typeof data !== 'object') {
-    return []
+    return { windows: [] }
   }
 
   const zhipu = data as unknown as ZhipuUsagePayload
-  if (Array.isArray(zhipu.limits) && zhipu.limits.length > 0) {
-    return zhipu.limits.map((limit) => ({
-      title:
-        limit.unit === 3
-          ? t('5-Hour Window')
-          : limit.unit === 6
-            ? t('Weekly Window')
-            : `${t('Window')} #${limit.unit ?? '-'}`,
-      percent: clampPercent(limit.percentage),
-      resetAt: formatEpochMs(limit.nextResetTime),
-      usedTotal: `${formatCount(limit.currentValue)} / ${formatCount(limit.usage)}`,
-      remaining: formatCount(limit.remaining),
-    }))
+  const zhipuEnvelope = (data as unknown as { data?: ZhipuUsagePayload }).data
+  const zhipuSource = zhipu.limits?.length ? zhipu : zhipuEnvelope
+  if (zhipuSource?.limits?.length) {
+    return {
+      planLevel: zhipuSource.level,
+      windows: zhipuSource.limits.map((limit) => ({
+        title:
+          limit.unit === 3
+            ? t('5-Hour Window')
+            : limit.unit === 6
+              ? t('Weekly Window')
+              : `${t('Window')} #${limit.unit ?? '-'}`,
+        percent: clampPercent(limit.percentage),
+        resetAt: formatEpochMs(limit.nextResetTime),
+        usedTotal: `${formatCount(limit.currentValue)} / ${formatCount(limit.usage)}`,
+        remaining: formatCount(limit.remaining),
+      })),
+    }
   }
 
   const openCode = data as unknown as OpenCodeUsagePayload
   const windows = openCode.usage
   if (!windows || typeof windows !== 'object') {
-    return []
+    return { windows: [] }
   }
-  return (
-    [
-      ['rolling', t('Rolling Window')],
-      ['weekly', t('Weekly Window')],
-      ['monthly', t('Monthly Window')],
-    ] as const
-  )
-    .filter(([key]) => windows[key])
-    .map(([key, title]) => ({
-      title,
-      percent: clampPercent(windows[key]?.percent),
-      resetAt: formatIso(windows[key]?.resetsAt),
-    }))
+  return {
+    windows: (
+      [
+        ['rolling', t('Rolling Window')],
+        ['weekly', t('Weekly Window')],
+        ['monthly', t('Monthly Window')],
+      ] as const
+    )
+      .filter(([key]) => windows[key])
+      .map(([key, title]) => ({
+        title,
+        percent: clampPercent(windows[key]?.percent),
+        resetAt: formatIso(windows[key]?.resetsAt),
+      })),
+  }
 }
 
 export function CodingPlanUsageDialog({
@@ -189,11 +202,10 @@ export function CodingPlanUsageDialog({
     () => (response?.data ? (response.data as Record<string, unknown>) : null),
     [response?.data]
   )
-  const windows = useMemo(
-    () => resolveUsageWindows(payload ?? undefined, t),
+  const { windows, planLevel } = useMemo(
+    () => resolveUsage(payload ?? undefined, t),
     [payload, t]
   )
-  const planLevel = (payload as ZhipuUsagePayload | null)?.level
   const channelLabel = `${channelName ?? '-'}${channelId ? ` (#${channelId})` : ''}`
 
   const errorMessage =
