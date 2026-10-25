@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>InfinMag API 使用文档</title>
+<style>
+html { scroll-behavior: smooth; }
+body { margin: 0; }
+</style>
+</head>
+<body>
+<div class="imdoc">
+<style>
+.imdoc {
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --accent: #6366f1;
+  --accent2: #06b6d4;
+  --code-bg: #0f172a;
+  --code-text: #e2e8f0;
+  --chip-bg: #eef2ff;
+  --chip-text: #4338ca;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 8px 4px 40px;
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.7;
+}
+@media (prefers-color-scheme: dark) {
+  .imdoc {
+    --bg: #0b1120;
+    --card: #111a2e;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --border: #1e293b;
+    --chip-bg: #1e1b4b;
+    --chip-text: #a5b4fc;
+  }
+}
+.imdoc * { box-sizing: border-box; }
+.imdoc section { scroll-margin-top: 16px; }
+.imdoc a { color: var(--accent); text-decoration: none; }
+.imdoc a:hover { text-decoration: underline; }
+
+/* hero */
+.imdoc .hero { text-align: center; padding: 36px 16px 28px; }
+.imdoc .hero .logo { height: 56px; margin-bottom: 14px; }
+.imdoc .hero h1 {
+  margin: 0 0 10px; font-size: 30px; font-weight: 800; letter-spacing: -0.5px;
+  background: linear-gradient(90deg, #4f46e5, #06b6d4);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.imdoc .hero p { margin: 0 auto; max-width: 640px; color: var(--muted); }
+.imdoc .chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 18px; }
+.imdoc .chip {
+  background: var(--chip-bg); color: var(--chip-text);
+  padding: 4px 14px; border-radius: 999px; font-size: 13px; font-weight: 600;
+}
+
+/* nav */
+.imdoc .nav { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 18px 0 26px; }
+.imdoc .nav a {
+  font-size: 13px; font-weight: 600; color: var(--muted);
+  border: 1px solid var(--border); border-radius: 999px; padding: 5px 14px;
+  background: var(--card);
+}
+.imdoc .nav a:hover { color: var(--accent); border-color: var(--accent); text-decoration: none; }
+
+/* cards & sections */
+.imdoc .card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+  padding: 24px 26px; margin-bottom: 22px;
+}
+.imdoc .sec-head { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+.imdoc .sec-ico {
+  width: 36px; height: 36px; flex: none; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+  background: linear-gradient(135deg, #eef2ff, #cffafe);
+}
+@media (prefers-color-scheme: dark) {
+  .imdoc .sec-ico { background: linear-gradient(135deg, #312e81, #164e63); }
+}
+.imdoc h2 { margin: 0; font-size: 20px; font-weight: 700; }
+.imdoc h3 { margin: 22px 0 10px; font-size: 16px; font-weight: 700; }
+.imdoc .lead { color: var(--muted); margin: 4px 0 14px; }
+
+/* info row */
+.imdoc .inforow { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin: 14px 0; }
+.imdoc .info {
+  border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; background: var(--bg);
+}
+.imdoc .info .k { font-size: 12px; color: var(--muted); font-weight: 600; }
+.imdoc .info .v { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 14px; margin-top: 2px; }
+
+/* steps */
+.imdoc .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 16px 0; }
+.imdoc .step { border: 1px solid var(--border); border-radius: 12px; padding: 16px; background: var(--bg); }
+.imdoc .step .n {
+  width: 26px; height: 26px; border-radius: 999px; color: #fff; font-weight: 700; font-size: 13px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, #6366f1, #06b6d4); margin-bottom: 8px;
+}
+.imdoc .step b { display: block; margin-bottom: 4px; }
+.imdoc .step span { color: var(--muted); font-size: 13.5px; }
+
+/* code */
+.imdoc .code {
+  position: relative; margin: 12px 0; border-radius: 12px; overflow: hidden;
+  background: var(--code-bg);
+}
+.imdoc .code .lang {
+  position: absolute; top: 0; left: 0; padding: 3px 12px; font-size: 11px; font-weight: 700;
+  color: #94a3b8; background: rgba(255,255,255,.06); border-radius: 0 0 10px 0;
+  font-family: ui-monospace, Menlo, Consolas, monospace; text-transform: uppercase;
+}
+.imdoc .code .copy {
+  position: absolute; top: 8px; right: 10px; z-index: 2;
+  padding: 2px 12px; border: 1px solid rgba(255,255,255,.18); border-radius: 8px;
+  background: rgba(255,255,255,.08); color: #cbd5e1; font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all .15s ease;
+}
+.imdoc .code .copy:hover { background: rgba(255,255,255,.18); color: #fff; }
+.imdoc .code pre {
+  margin: 0; padding: 16px 18px; overflow-x: auto; color: var(--code-text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px; line-height: 1.6;
+}
+
+/* tables */
+.imdoc table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+.imdoc th {
+  text-align: left; padding: 9px 12px; border-bottom: 2px solid var(--border);
+  color: var(--muted); font-size: 12.5px; font-weight: 700; white-space: nowrap;
+}
+.imdoc td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.imdoc tr:last-child td { border-bottom: 0; }
+.imdoc td code, .imdoc p code, .imdoc li code, .imdoc .info .v {
+  background: var(--chip-bg); color: var(--chip-text);
+  padding: 1px 7px; border-radius: 6px; font-size: 13px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* badges */
+.imdoc .b { display: inline-block; padding: 1px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; line-height: 1.7; white-space: nowrap; }
+.imdoc .b-ok { background: #dcfce7; color: #15803d; }
+.imdoc .b-info { background: #e0f2fe; color: #0369a1; }
+.imdoc .b-warn { background: #fef9c3; color: #a16207; }
+.imdoc .b-err { background: #fee2e2; color: #b91c1c; }
+.imdoc .b-mute { background: var(--chip-bg); color: var(--muted); }
+@media (prefers-color-scheme: dark) {
+  .imdoc .b-ok { background: #14532d; color: #86efac; }
+  .imdoc .b-info { background: #0c4a6e; color: #7dd3fc; }
+  .imdoc .b-warn { background: #713f12; color: #fde047; }
+  .imdoc .b-err { background: #7f1d1d; color: #fca5a5; }
+}
+
+/* callout */
+.imdoc .note {
+  border-left: 4px solid var(--accent2); background: var(--bg);
+  border-radius: 0 10px 10px 0; padding: 10px 16px; margin: 14px 0; color: var(--muted); font-size: 14px;
+}
+.imdoc .note.warn { border-left-color: #f59e0b; }
+
+/* timeline */
+.imdoc .tl { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 14px 0; }
+.imdoc .tl .t { border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; background: var(--bg); }
+.imdoc .tl .t .tag { font-size: 12px; font-weight: 800; color: var(--accent); letter-spacing: .5px; }
+
+/* voices */
+.imdoc .voices { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin: 14px 0; }
+.imdoc .voice {
+  border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; text-align: center; background: var(--bg);
+}
+.imdoc .voice b { display: block; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px; }
+.imdoc .voice span { color: var(--muted); font-size: 12.5px; }
+
+/* details */
+.imdoc details {
+  border: 1px solid var(--border); border-radius: 12px; margin: 10px 0; background: var(--bg);
+  overflow: hidden;
+}
+.imdoc details summary {
+  cursor: pointer; padding: 12px 18px; font-weight: 600; list-style: none; position: relative;
+}
+.imdoc details summary::-webkit-details-marker { display: none; }
+.imdoc details summary::after {
+  content: "+"; position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+  color: var(--accent); font-weight: 800; font-size: 16px;
+}
+.imdoc details[open] summary::after { content: "−"; }
+.imdoc details .inner { padding: 0 18px 14px; color: var(--muted); font-size: 14px; }
+
+/* footer */
+.imdoc .foot { text-align: center; color: var(--muted); font-size: 13px; padding: 10px 0 0; }
+
+@media (max-width: 640px) {
+  .imdoc .hero h1 { font-size: 24px; }
+  .imdoc .card { padding: 18px 16px; }
+}
+</style>
+
+<header class="hero">
+  <img class="logo" src="/infinmag-logo-v2.png" alt="InfinMag">
+  <h1>InfinMag API 使用文档</h1>
+  <p>一个 API Key,聚合主流大模型 —— 文本对话、视频生成、语音合成、向量与图像,全部通过 OpenAI 兼容接口提供。替换 <code>base_url</code> 即可从 OpenAI 或任意兼容中转无缝迁移。</p>
+  <div class="chips">
+    <span class="chip">⚡ OpenAI 兼容</span>
+    <span class="chip">🟣 Anthropic 原生格式</span>
+    <span class="chip">🌊 流式 SSE</span>
+    <span class="chip">🎬 异步视频</span>
+    <span class="chip">🔊 语音合成</span>
+  </div>
+</header>
+
+<nav class="nav">
+  <a href="#quick">快速开始</a>
+  <a href="#groups">分组</a>
+  <a href="#chat">文本对话</a>
+  <a href="#claude">Claude 格式</a>
+  <a href="#embed">向量 / 图像</a>
+  <a href="#video">视频生成</a>
+  <a href="#tts">语音合成</a>
+  <a href="#balance">余额查询</a>
+  <a href="#billing">计费充值</a>
+  <a href="#errors">错误码</a>
+  <a href="#faq">FAQ</a>
+  <a href="#en">English</a>
+</nav>
+
+<section class="card" id="quick">
+  <div class="sec-head"><div class="sec-ico">🚀</div><h2>快速开始</h2></div>
+  <div class="steps">
+    <div class="step"><span class="n">1</span><b>注册登录</b><span>注册本站账号并登录</span></div>
+    <div class="step"><span class="n">2</span><b>创建令牌</b><span>进入 <a href="/console/token" target="_blank">令牌页</a> → 添加令牌,复制 <code>sk-...</code>(仅显示一次,妥善保管)</span></div>
+    <div class="step"><span class="n">3</span><b>发起请求</b><span>按下方示例,替换 key 即可跑通第一个请求</span></div>
+  </div>
+  <div class="inforow">
+    <div class="info"><div class="k">Base URL</div><div class="v">https://api.infinmag.com/v1</div></div>
+    <div class="info"><div class="k">认证方式</div><div class="v">Authorization: Bearer sk-你的令牌</div></div>
+    <div class="info"><div class="k">可用模型</div><div class="v"><a href="/pricing" target="_blank">模型价格页</a> / GET /v1/models</div></div>
+  </div>
+</section>
+
+<section class="card" id="groups">
+  <div class="sec-head"><div class="sec-ico">🗂️</div><h2>分组说明</h2></div>
+  <p class="lead">创建令牌时可选择<b>分组</b>,不同分组对接不同上游池,模型清单与倍率可能不同。令牌不指定分组时按账户默认分组路由。</p>
+  <table>
+    <tr><th>分组</th><th>面向</th><th>说明</th></tr>
+    <tr><td><b>默认分组</b></td><td><span class="b b-ok">推荐</span></td><td>常规聚合池,覆盖绝大多数模型,不确定就选它</td></tr>
+    <tr><td><b>vip 分组</b></td><td><span class="b b-info">特定用户</span></td><td>需管理员开通,倍率更优</td></tr>
+    <tr><td><b>Claude Code 专用</b></td><td><span class="b b-info">可选</span></td><td>专供 Claude Code 客户端(Anthropic 原生格式 <code>/v1/messages</code>),其他工具调用会报错</td></tr>
+    <tr><td><b>Codex 专用</b></td><td><span class="b b-info">可选</span></td><td>专供 Codex CLI(<code>/v1/responses</code>),其他客户端调用会报错</td></tr>
+    <tr><td><b>Gemini 分组</b></td><td><span class="b b-info">可选</span></td><td>原生 Gemini 与 OpenAI 格式均可用,含最新 Gemini 系列</td></tr>
+  </table>
+  <div class="note">选错分组的典型报错是 <code>403 无权访问 xxx 分组</code> 或上游参数错误 —— 换回默认分组即可。名称中带「自用」字样的分组为站方内部订阅通道,不对外提供支持,<b>请勿选择</b>。</div>
+</section>
+
+<section class="card" id="chat">
+  <div class="sec-head"><div class="sec-ico">💬</div><h2>文本对话(Chat Completions)</h2></div>
+  <p class="lead">标准 OpenAI Chat 格式,支持 glm、deepseek、claude、gemini 等系列。</p>
+  <div class="code"><span class="lang">curl</span><pre>curl https://api.infinmag.com/v1/chat/completions \
+  -H "Authorization: Bearer sk-xxx" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gemini-3.5-flash",
+    "messages": [{"role": "user", "content": "你好,介绍一下你自己"}]
+  }'</pre></div>
+  <div class="code"><span class="lang">python</span><pre>from openai import OpenAI
+
+client = OpenAI(api_key="sk-xxx", base_url="https://api.infinmag.com/v1")
+
+resp = client.chat.completions.create(
+    model="gemini-3.5-flash",
+    messages=[{"role": "user", "content": "你好"}]
+)
+print(resp.choices[0].message.content)</pre></div>
+  <div class="code"><span class="lang">node</span><pre>import OpenAI from "openai";
+
+const client = new OpenAI({ apiKey: "sk-xxx", baseURL: "https://api.infinmag.com/v1" });
+
+const resp = await client.chat.completions.create({
+  model: "gemini-3.5-flash",
+  messages: [{ role: "user", content: "你好" }],
+});
+console.log(resp.choices[0].message.content);</pre></div>
+  <h3>流式输出</h3>
+  <p>请求体加 <code>"stream": true</code>(SDK 中 <code>stream=True</code> / <code>stream: true</code>),SSE 格式与 OpenAI 完全一致,按 <code>delta.content</code> 增量拼接:</p>
+  <div class="code"><span class="lang">curl</span><pre>curl https://api.infinmag.com/v1/chat/completions \
+  -H "Authorization: Bearer sk-xxx" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gemini-3.5-flash",
+    "stream": true,
+    "messages": [{"role": "user", "content": "写一首关于春天的诗"}]
+  }'</pre></div>
+</section>
+
+<section class="card" id="claude">
+  <div class="sec-head"><div class="sec-ico">🟣</div><h2>Claude 原生格式(/v1/messages)</h2></div>
+  <p class="lead">已在用 Anthropic SDK / Claude Code 的用户无需改造,改 <code>base_url</code> 直连。</p>
+  <div class="code"><span class="lang">python</span><pre>from anthropic import Anthropic
+
+client = Anthropic(api_key="sk-xxx", base_url="https://api.infinmag.com")
+
+msg = client.messages.create(
+    model="claude-sonnet-4-5",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "你好"}]
+)
+print(msg.content[0].text)</pre></div>
+  <div class="note">也可直接 <code>POST https://api.infinmag.com/v1/messages</code>,请求/响应体与 Anthropic 官方格式一致,请求头用 <code>x-api-key</code> 或标准 Bearer 均可。</div>
+</section>
+
+<section class="card" id="embed">
+  <div class="sec-head"><div class="sec-ico">🧮</div><h2>向量与图像</h2></div>
+  <p class="lead">同样兼容 OpenAI 格式,可用模型以 <code>GET /v1/models</code> 返回为准。</p>
+  <div class="code"><span class="lang">embeddings</span><pre>curl https://api.infinmag.com/v1/embeddings \
+  -H "Authorization: Bearer sk-xxx" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "text-embedding-3-small",
+    "input": "InfinMag 使用文档"
+  }'</pre></div>
+  <div class="code"><span class="lang">images</span><pre>curl https://api.infinmag.com/v1/images/generations \
+  -H "Authorization: Bearer sk-xxx" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-1",
+    "prompt": "a cute orange cat playing piano, cinematic",
+    "n": 1,
+    "size": "1024x1024"
+  }'</pre></div>
+</section>
+
+<section class="card" id="video">
+  <div class="sec-head"><div class="sec-ico">🎬</div><h2>视频生成</h2></div>
+  <p class="lead">支持 <b>MiniMax H3</b>、<b>豆包 Seedance 2.5</b>,采用异步任务模式。计费 = 单价 × 视频秒数,提交任务时<b>预扣</b>,失败自动退回。</p>
+  <table>
+    <tr><th>模型</th><th>说明</th><th>单价(美元/秒)</th></tr>
+    <tr><td><code>minimax-h3</code></td><td>MiniMax H3,文生视频</td><td>$0.16</td></tr>
+    <tr><td><code>minimax-h3-max</code></td><td>MiniMax H3 Max</td><td>$0.10</td></tr>
+    <tr><td><code>doubao-seedance-2-5-260628</code></td><td>字节 Seedance 2.5,多模态参考(图/视频/音频)、原生音效</td><td>$0.31(720p)</td></tr>
+  </table>
+  <div class="tl">
+    <div class="t"><div class="tag">STEP 1 · 提交任务</div><br><code>POST /v1/videos</code><br><span style="color:var(--muted);font-size:13px">记下返回的 <code>id</code>;也支持统一格式 <code>POST /v1/video/generations</code></span></div>
+    <div class="t"><div class="tag">STEP 2 · 轮询状态</div><br><code>GET /v1/videos/{id}</code><br><span style="color:var(--muted);font-size:13px">建议每 15 秒一次:<code>queued</code> → <code>in_progress</code> → <code>completed</code> / <code>failed</code></span></div>
+    <div class="t"><div class="tag">STEP 3 · 下载视频</div><br><code>GET /v1/videos/{id}/content</code><br><span style="color:var(--muted);font-size:13px">下载链接 <b>24 小时内有效</b>,请及时转存</span></div>
+  </div>
+  <div class="code"><span class="lang">submit</span><pre>curl -X POST https://api.infinmag.com/v1/videos \
+  -H "Authorization: Bearer sk-xxx" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "doubao-seedance-2-5-260628",
+    "prompt": "一只橘猫坐在钢琴前弹奏爵士乐,暖色调,电影感镜头",
+    "duration": 5,
+    "resolution": "720p"
+  }'</pre></div>
+  <h3>Seedance 专属参数</h3>
+  <table>
+    <tr><th>参数</th><th>类型</th><th>说明</th></tr>
+    <tr><td><code>prompt</code></td><td>string</td><td>必填,1–2000 字符</td></tr>
+    <tr><td><code>duration</code></td><td><b>int</b></td><td>时长秒数,<b>整数 4~15</b>;填 <code>-1</code> 由模型自动决定(按实际秒数计费)</td></tr>
+    <tr><td><code>resolution</code></td><td>string</td><td><code>"480p"</code> / <code>"720p"</code>(默认)</td></tr>
+    <tr><td><code>ratio</code></td><td>string</td><td>画面比例:<code>"adaptive"</code>(默认)/ <code>"16:9"</code> / <code>"9:16"</code> / <code>"1:1"</code> / <code>"4:3"</code> / <code>"3:4"</code></td></tr>
+    <tr><td><code>generate_audio</code></td><td>bool</td><td>是否生成声音,默认 <code>true</code></td></tr>
+    <tr><td><code>watermark</code></td><td>bool</td><td>是否加水印,默认 <code>false</code></td></tr>
+    <tr><td><code>extra_body.content</code></td><td>array</td><td><b>多模态参考</b>:传参考图/视频/音频做图生视频、风格迁移</td></tr>
+  </table>
+  <div class="code"><span class="lang">图生视频</span><pre>{
+  "model": "doubao-seedance-2-5-260628",
+  "prompt": "让画面中的猫咪动起来",
+  "duration": 5,
+  "extra_body": {
+    "content": [
+      {"role": "reference_image", "content": [{"type": "image_url", "image_url": {"url": "https://你的图片地址.jpg"}}]}
+    ]
+  }
+}</pre></div>
+  <div class="note"><code>minimax-h3</code> 系列建议先只传 <code>model</code> + <code>prompt</code> 最小参数调用;如需指定时长等参数,以报错提示为准。</div>
+</section>
+
+<section class="card" id="tts">
+  <div class="sec-head"><div class="sec-ico">🔊</div><h2>语音合成(TTS)</h2></div>
+  <p class="lead">Gemini 系列 TTS,文字转自然语音,支持<b>语气风格控制</b>与<b>多角色对话</b>。</p>
+  <div class="code"><span class="lang">curl</span><pre>curl https://api.infinmag.com/v1/audio/speech \
+  -H "Authorization: Bearer sk-xxx" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gemini-3.8-flash-tts",
+    "input": "欢迎使用 InfinMag API!",
+    "voice": "Kore",
+    "response_format": "wav"
+  }' \
+  -o speech.wav</pre></div>
+  <p>Python 用法与 OpenAI SDK 一致:<code>client.audio.speech.create(model=..., voice="Kore", input="...")</code></p>
+  <h3>推荐音色</h3>
+  <div class="voices">
+    <div class="voice"><b>Kore</b><span>坚定</span></div>
+    <div class="voice"><b>Puck</b><span>欢快</span></div>
+    <div class="voice"><b>Zephyr</b><span>明亮</span></div>
+    <div class="voice"><b>Charon</b><span>沉稳</span></div>
+    <div class="voice"><b>Aoede</b><span>轻快</span></div>
+    <div class="voice"><b>Leda</b><span>年轻</span></div>
+    <div class="voice"><b>Fenrir</b><span>热烈</span></div>
+    <div class="voice"><b>Enceladus</b><span>含蓄</span></div>
+  </div>
+  <div class="note warn">⚠️ 请使用以上 Gemini 音色名,<b>不要</b>使用 <code>alloy</code>、<code>echo</code> 等 OpenAI 音色名,会报错。</div>
+  <h3>高级用法:语气与多角色(instructions)</h3>
+  <div class="code"><span class="lang">json</span><pre>{
+  "model": "gemini-3.8-flash-tts",
+  "input": "Speaker1: 今天天气真好!Speaker2: 是啊,出去玩吧!",
+  "voice": "Kore",
+  "instructions": "用轻松愉快的语气;Speaker1 声音专业,Speaker2 声音活泼"
+}</pre></div>
+  <table>
+    <tr><th>限制</th><th>说明</th></tr>
+    <tr><td>输出格式</td><td>仅 <code>wav</code> / <code>pcm</code>(不支持 mp3)</td></tr>
+    <tr><td>语速</td><td>不支持 <code>speed</code> 参数(请写进 <code>instructions</code>)</td></tr>
+    <tr><td>长度</td><td>单次最长 <b>4096 字符</b></td></tr>
+    <tr><td>计费</td><td>音频输出约 <b>$0.012/分钟</b>(文本输入费用极低可忽略),按实际时长计费</td></tr>
+  </table>
+</section>
+
+<section class="card" id="balance">
+  <div class="sec-head"><div class="sec-ico">📊</div><h2>余额与用量查询(API)</h2></div>
+  <p class="lead">无需登录后台,用 API Key 直接查(与 OpenAI 计费接口兼容)。</p>
+  <div class="code"><span class="lang">总额度</span><pre>curl https://api.infinmag.com/v1/dashboard/billing/subscription \
+  -H "Authorization: Bearer sk-xxx"
+# 返回 hard_limit_usd = 总额度(美元)</pre></div>
+  <div class="code"><span class="lang">已用额度</span><pre>curl "https://api.infinmag.com/v1/dashboard/billing/usage" \
+  -H "Authorization: Bearer sk-xxx"
+# total_usage 单位 0.01 美元,如 520 = $5.20;剩余 = 总额度 − 已用</pre></div>
+  <div class="note">图形化用量明细见控制台 <a href="/console/log" target="_blank">日志页</a>。</div>
+</section>
+
+<section class="card" id="billing">
+  <div class="sec-head"><div class="sec-ico">💳</div><h2>计费与充值</h2></div>
+  <table>
+    <tr><th>事项</th><th>入口</th></tr>
+    <tr><td>充值</td><td>控制台 → 钱包(支持 Stripe 信用卡 / 支付宝)</td></tr>
+    <tr><td>查价</td><td><a href="/pricing" target="_blank">模型价格页</a>;视频与 TTS 价格见本文对应章节</td></tr>
+    <tr><td>查账</td><td>控制台 → <b>日志</b>,每笔调用的模型、用量、费用、耗时均可查,支持筛选导出</td></tr>
+  </table>
+  <div class="note warn">额度用尽会返回 <code>insufficient quota</code> 错误,充值后自动恢复。</div>
+</section>
+
+<section class="card" id="errors">
+  <div class="sec-head"><div class="sec-ico">⚠️</div><h2>错误码</h2></div>
+  <p class="lead">出错时统一返回 OpenAI 风格 JSON。</p>
+  <div class="code"><span class="lang">json</span><pre>{
+  "error": {
+    "message": "无效的令牌",
+    "type": "new_api_error",
+    "code": "invalid_token"
+  }
+}</pre></div>
+  <table>
+    <tr><th>HTTP 状态</th><th>常见原因</th><th>处理</th></tr>
+    <tr><td><span class="b b-err">401</span></td><td>Key 错误 / 令牌已过期或被禁用</td><td>检查 <code>Authorization: Bearer sk-xxx</code>,或到令牌页重建</td></tr>
+    <tr><td><span class="b b-warn">403</span></td><td>无权访问该模型(分组限制)</td><td>联系管理员开通</td></tr>
+    <tr><td><span class="b b-warn">404</span></td><td>模型名错误或未上架</td><td>以 <code>GET /v1/models</code> 返回为准</td></tr>
+    <tr><td><span class="b b-info">429</span></td><td>触发限流</td><td>稍后重试;频繁出现可联系提额</td></tr>
+    <tr><td><span class="b b-err">5xx</span></td><td>上游临时故障</td><td>重试;持续出现请联系管理员</td></tr>
+    <tr><td><span class="b b-mute">-</span></td><td><code>insufficient quota</code></td><td>余额不足,请充值</td></tr>
+  </table>
+</section>
+
+<section class="card" id="faq">
+  <div class="sec-head"><div class="sec-ico">❓</div><h2>常见问题</h2></div>
+  <details><summary>TTS 报 <code>No matching speaker voice found</code></summary><div class="inner">音色名错误。Gemini TTS 请用 <code>Kore</code> / <code>Puck</code> 等音色,见上方推荐音色表。</div></details>
+  <details><summary>TTS 返回的是 json 头?</summary><div class="inner">正常现象,响应体实为 WAV 音频,按二进制保存即可(<code>-o speech.wav</code>)。</div></details>
+  <details><summary>视频任务一直 <code>queued</code></summary><div class="inner">排队中属正常;超过 30 分钟未变请带任务 id 联系管理员。</div></details>
+  <details><summary>视频下载链接失效</summary><div class="inner">下载链接 24 小时有效,过期需重新生成。</div></details>
+  <details><summary>想要流式但收到整段</summary><div class="inner">请求体加 <code>"stream": true</code>。</div></details>
+  <details><summary>SDK 报证书错误</summary><div class="inner">请使用 <code>https://api.infinmag.com</code> 官方域名,勿用备用 IP。</div></details>
+</section>
+
+<section class="card" id="en">
+  <div class="sec-head"><div class="sec-ico">🌍</div><h2>English Quick Start</h2></div>
+  <div class="code"><span class="lang">bash</span><pre># Chat
+curl https://api.infinmag.com/v1/chat/completions -H "Authorization: Bearer sk-xxx" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"gemini-3.5-flash","messages":[{"role":"user","content":"Hello!"}]}'
+
+# Video (async: submit -> poll GET /v1/videos/{id} -> download GET /v1/videos/{id}/content)
+curl -X POST https://api.infinmag.com/v1/videos -H "Authorization: Bearer sk-xxx" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"doubao-seedance-2-5-260628","prompt":"a cat playing jazz piano","duration":5,"resolution":"720p"}'
+
+# TTS (Gemini voices only: Kore, Puck, Zephyr, ...; wav/pcm output)
+curl https://api.infinmag.com/v1/audio/speech -H "Authorization: Bearer sk-xxx" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"gemini-3.8-flash-tts","input":"Hello from InfinMag!","voice":"Kore"}' -o out.wav
+
+# Balance
+curl https://api.infinmag.com/v1/dashboard/billing/subscription -H "Authorization: Bearer sk-xxx"</pre></div>
+</section>
+
+<section class="card" id="contact">
+  <div class="sec-head"><div class="sec-ico">📮</div><h2>联系支持</h2></div>
+  <p>提交工单 / 站内反馈,或邮件 <a href="mailto:lsy3311735121@gmail.com" target="_blank">lsy3311735121@gmail.com</a>。</p>
+</section>
+
+<p class="foot">本站基于 new-api 构建,感谢开源社区。</p>
+</div>
+<script>
+(function () {
+  document.querySelectorAll('.imdoc .code').forEach(function (box) {
+    var pre = box.querySelector('pre');
+    if (!pre) return;
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'copy'; btn.textContent = '复制';
+    function done(ok) {
+      btn.textContent = ok ? '已复制 ✓' : '按 Ctrl+C 复制';
+      setTimeout(function () { btn.textContent = '复制'; }, 1800);
+    }
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = pre.innerText; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta); done(ok);
+    }
+    btn.addEventListener('click', function () {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(pre.innerText).then(function () { done(true); }, fallback);
+      } else { fallback(); }
+    });
+    box.appendChild(btn);
+  });
+})();
+</script>
+</body>
+</html>
